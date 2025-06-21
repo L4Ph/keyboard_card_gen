@@ -1,0 +1,362 @@
+---
+// Card Generator Component
+---
+
+<div class="card-generator">
+  <div class="container">
+    <header class="header">
+      <h1>Keyboard Event Card Generator</h1>
+      <p>Create beautiful A6-sized cards for keyboard events and showcases</p>
+    </header>
+
+    <div class="main-content">
+      <div class="form-section">
+        <div class="form-container">
+          <h2>Card Information</h2>
+          
+          <form id="cardForm" class="card-form">
+            <div class="form-group">
+              <label for="keyboardName">Keyboard Name</label>
+              <input type="text" id="keyboardName" name="keyboardName" placeholder="HHKB Professional" />
+            </div>
+
+            <div class="form-group">
+              <label for="owner">Owner</label>
+              <input type="text" id="owner" name="owner" placeholder="John Doe" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="switches">Switches</label>
+                <input type="text" id="switches" name="switches" placeholder="Cherry MX Blue" />
+              </div>
+              <div class="form-group">
+                <label for="keycaps">Keycaps</label>
+                <input type="text" id="keycaps" name="keycaps" placeholder="PBT Double-shot" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="layout">Layout</label>
+                <select id="layout" name="layout">
+                  <option value="60%">60%</option>
+                  <option value="65%">65%</option>
+                  <option value="75%">75%</option>
+                  <option value="TKL">TKL (Tenkeyless)</option>
+                  <option value="Full Size">Full Size</option>
+                  <option value="Custom">Custom</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="colorScheme">Color Scheme</label>
+                <select id="colorScheme" name="colorScheme">
+                  <option value="blue">Ocean Blue</option>
+                  <option value="purple">Royal Purple</option>
+                  <option value="orange">Sunset Orange</option>
+                  <option value="green">Forest Green</option>
+                  <option value="red">Crimson Red</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" rows="3" placeholder="Premium mechanical keyboard with tactical switches and premium keycaps..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="keyboardPhoto">Keyboard Photo</label>
+              <div class="file-upload">
+                <input type="file" id="keyboardPhoto" name="keyboardPhoto" accept="image/*" />
+                <div class="file-upload-text">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <span>Upload keyboard photo</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="generateCard" class="btn btn-primary">Generate Card</button>
+              <button type="button" id="downloadSVG" class="btn btn-secondary" disabled>Download SVG</button>
+              <button type="button" id="downloadPNG" class="btn btn-secondary" disabled>Download PNG</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <div class="preview-container">
+          <h2>Card Preview</h2>
+          <div class="card-preview">
+            <div id="cardPreview" class="card-canvas">
+              <div class="placeholder-card">
+                <p>Fill out the form to generate your card</p>
+              </div>
+            </div>
+          </div>
+          <div class="preview-info">
+            <p>A6 Size: 148 × 105 mm (5.8 × 4.1 in)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card-generator {
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .form-container, .preview-container {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .form-container h2, .preview-container h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: white;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .file-upload {
+    position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.2s, background-color 0.2s;
+    cursor: pointer;
+  }
+
+  .file-upload:hover {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+  }
+
+  .file-upload input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .file-upload-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+  }
+
+  .file-upload-text svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+    flex: 1;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: #e2e8f0;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .card-preview {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .card-canvas {
+    width: 420px;
+    height: 297px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .placeholder-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .preview-info {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.75rem;
+  }
+
+  .preview-info p {
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .main-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .card-canvas {
+      width: 350px;
+      height: 248px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .container {
+      padding: 0 1rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+    }
+
+    .form-container, .preview-container {
+      padding: 1.5rem;
+    }
+
+    .card-canvas {
+      width: 280px;
+      height: 198px;
+    }
+  }
+</style>
+
+<script>
+  // Card generation and download functionality will be handled by the separate script file
+</script>
