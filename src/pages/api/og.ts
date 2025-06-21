@@ -81,7 +81,7 @@ export const POST: APIRoute = async ({ request }) => {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                opacity: '0.3',
+                opacity: '0.4',
                 zIndex: -1,
               }
             }
@@ -121,7 +121,7 @@ export const POST: APIRoute = async ({ request }) => {
                 left: '0',
                 width: '100%',
                 height: '100%',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: 'rgba(255, 255, 255, 0.75)',
                 zIndex: 0,
               }
             }
@@ -131,97 +131,125 @@ export const POST: APIRoute = async ({ request }) => {
             props: {
               style: {
                 display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: '80px',
-                paddingTop: '80px',
-                textAlign: 'center',
-                zIndex: 1,
+                flexDirection: 'row',
+                width: '100%',
                 height: '100%',
+                zIndex: 1,
               },
               children: [
+                // Left side
                 {
                   type: 'div',
                   props: {
                     style: {
-                      fontSize: '72px',
-                      fontWeight: 'bold',
-                      color: colorScheme.primary,
-                      marginBottom: '20px',
-                    },
-                    children: keyboardName,
-                  }
-                },
-                owner && {
-                  type: 'div',
-                  props: {
-                    style: {
-                      fontSize: '56px',
-                      fontWeight: 'bold',
-                      color: colorScheme.secondary,
-                      marginBottom: '40px',
-                    },
-                    children: owner,
-                  }
-                },
-                {
-                  type: 'div',
-                  props: {
-                    style: {
+                      width: '50%',
+                      height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      width: '100%',
-                      fontSize: '36px',
-                      marginBottom: '20px',
-                      padding: '0 80px',
+                      justifyContent: 'center',
+                      padding: '80px',
                     },
                     children: [
-                      switches && {
+                      {
                         type: 'div',
                         props: {
-                          style: { display: 'flex', marginBottom: '10px' },
+                          style: {
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            width: '100%',
+                            fontSize: '48px',
+                            marginBottom: '20px',
+                          },
                           children: [
-                            { type: 'span', props: { children: 'Switches: ' } },
-                            { type: 'span', props: { style: { fontWeight: 'bold' }, children: switches } }
-                          ]
+                            switches && {
+                              type: 'div',
+                              props: {
+                                style: { display: 'flex', marginBottom: '10px' },
+                                children: [
+                                  { type: 'span', props: { children: 'Switches: ' } },
+                                  { type: 'span', props: { style: { fontWeight: 'bold' }, children: switches } }
+                                ]
+                              }
+                            },
+                            keycaps && {
+                              type: 'div',
+                              props: {
+                                style: { display: 'flex', marginBottom: '10px' },
+                                children: [
+                                  { type: 'span', props: { children: 'Keycaps: ' } },
+                                  { type: 'span', props: { style: { fontWeight: 'bold' }, children: keycaps } }
+                                ]
+                              }
+                            },
+                            layout && {
+                              type: 'div',
+                              props: {
+                                style: { display: 'flex', marginBottom: '10px' },
+                                children: [
+                                  { type: 'span', props: { children: 'Layout: ' } },
+                                  { type: 'span', props: { style: { fontWeight: 'bold' }, children: layout } }
+                                ]
+                              }
+                            },
+                          ].filter(Boolean)
                         }
                       },
-                      keycaps && {
+                      description && {
                         type: 'div',
                         props: {
-                          style: { display: 'flex', marginBottom: '10px' },
-                          children: [
-                            { type: 'span', props: { children: 'Keycaps: ' } },
-                            { type: 'span', props: { style: { fontWeight: 'bold' }, children: keycaps } }
-                          ]
+                          style: {
+                            fontSize: '36px',
+                            color: '#6b7280',
+                            textAlign: 'left',
+                            width: '100%',
+                          },
+                          children: description,
                         }
-                      },
-                      layout && {
-                        type: 'div',
-                        props: {
-                          style: { display: 'flex', marginBottom: '10px' },
-                          children: [
-                            { type: 'span', props: { children: 'Layout: ' } },
-                            { type: 'span', props: { style: { fontWeight: 'bold' }, children: layout } }
-                          ]
-                        }
-                      },
-                    ]
+                      }
+                    ].filter(Boolean)
                   }
                 },
-                description && {
+                // Right side
+                {
                   type: 'div',
                   props: {
                     style: {
-                      fontSize: '28px',
-                      color: '#6b7280',
-                      textAlign: 'left',
-                      padding: '0 80px',
-                      width: '100%',
+                      width: '50%',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      padding: '80px',
                     },
-                    children: description,
+                    children: [
+                      {
+                        type: 'div',
+                        props: {
+                          style: {
+                            fontSize: '80px',
+                            fontWeight: 'bold',
+                            color: colorScheme.primary,
+                            marginBottom: '20px',
+                          },
+                          children: keyboardName,
+                        }
+                      },
+                      owner && {
+                        type: 'div',
+                        props: {
+                          style: {
+                            fontSize: '64px',
+                            fontWeight: 'bold',
+                            color: colorScheme.secondary,
+                            marginBottom: '40px',
+                          },
+                          children: owner,
+                        }
+                      },
+                    ].filter(Boolean)
                   }
                 }
               ]
