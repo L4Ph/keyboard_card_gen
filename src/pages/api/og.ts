@@ -40,8 +40,8 @@ export const POST: APIRoute = async ({ request }) => {
       photoDataUrl = `data:${photoFile.type};base64,${base64}`;
     }
 
-    const interRegular = await getFontData('public/fonts/Inter-Regular.ttf');
-    const interBold = await getFontData('public/fonts/Inter-Bold.ttf');
+    const plexSansJPRegular = await getFontData('public/fonts/IBMPlexSansJP-Regular.ttf');
+    const plexSansJPBold = await getFontData('public/fonts/IBMPlexSansJP-Bold.ttf');
 
     const html = {
       type: 'div',
@@ -236,14 +236,14 @@ export const POST: APIRoute = async ({ request }) => {
       height: 1240,
       fonts: [
         {
-          name: 'Inter',
-          data: interRegular,
+          name: 'IBM Plex Sans JP',
+          data: plexSansJPRegular,
           weight: 400,
           style: 'normal',
         },
         {
-          name: 'Inter',
-          data: interBold,
+          name: 'IBM Plex Sans JP',
+          data: plexSansJPBold,
           weight: 700,
           style: 'normal',
         },
