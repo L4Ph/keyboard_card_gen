@@ -117,11 +117,11 @@ export const POST: APIRoute = async ({ request }) => {
             props: {
               style: {
                 position: 'absolute',
-                top: '50%',
+                top: '0',
                 left: '0',
                 width: '100%',
-                height: '50%',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                height: '100%',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 zIndex: 0,
               }
             }
@@ -135,7 +135,7 @@ export const POST: APIRoute = async ({ request }) => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '80px',
-                paddingTop: '350px',
+                paddingTop: '80px',
                 textAlign: 'center',
                 zIndex: 1,
                 height: '100%',
