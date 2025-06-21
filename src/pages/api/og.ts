@@ -75,6 +75,17 @@ export const POST: APIRoute = async ({ request }) => {
 
     const colorScheme = colorSchemes[colorSchemeKey];
 
+    // Calculate dynamic font size for description based on its length
+    let descriptionFontSize = 32; // Default size
+    if (description) {
+      const len = description.length;
+      if (len < 50) {
+        descriptionFontSize = 40;
+      } else if (len > 100) {
+        descriptionFontSize = 24;
+      }
+    }
+
     let photoDataUrl: string | null = null;
     if (photoFile && photoFile.size > 0) {
       const buffer = await photoFile.arrayBuffer();
@@ -152,10 +163,10 @@ export const POST: APIRoute = async ({ request }) => {
               style: {
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between', // Pushes content to top, middle, bottom
+                justifyContent: 'center', // Center all content vertically
                 width: '100%',
                 height: '100%',
-                padding: '80px',
+                padding: '70px',
                 zIndex: 1,
               },
               children: [
@@ -173,7 +184,7 @@ export const POST: APIRoute = async ({ request }) => {
                         type: 'div',
                         props: {
                           style: {
-                            fontSize: '110px', // Much larger font size
+                            fontSize: '110px',
                             fontWeight: 'bold',
                             color: colorScheme.primary,
                             lineHeight: '1.1',
@@ -206,15 +217,15 @@ export const POST: APIRoute = async ({ request }) => {
                       flexDirection: 'column',
                       alignItems: 'flex-start',
                       width: '100%',
-                      fontSize: '52px', // Larger base font size for specs
-                      marginTop: '40px', // Add space from top
-                      marginBottom: '40px', // Add space from bottom
+                      fontSize: '52px',
+                      marginTop: '60px', // Increased margin for separation
+                      marginBottom: '60px', // Increased margin for separation
                     },
                     children: [
                       (switches && switches.trim() !== '') && {
                         type: 'div',
                         props: {
-                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' }, // Increased margin
+                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' },
                           children: [
                             { type: 'span', props: { style: { fontWeight: 'bold', color: colorScheme.secondary, width: '220px', fontSize: '48px' }, children: 'Switches' } },
                             { type: 'span', props: { children: switches } }
@@ -224,7 +235,7 @@ export const POST: APIRoute = async ({ request }) => {
                       (keycaps && keycaps.trim() !== '') && {
                         type: 'div',
                         props: {
-                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' }, // Increased margin
+                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' },
                           children: [
                             { type: 'span', props: { style: { fontWeight: 'bold', color: colorScheme.secondary, width: '220px', fontSize: '48px' }, children: 'Keycaps' } },
                             { type: 'span', props: { children: keycaps } }
@@ -234,7 +245,7 @@ export const POST: APIRoute = async ({ request }) => {
                       (layout && layout.trim() !== '') && {
                         type: 'div',
                         props: {
-                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' }, // Increased margin
+                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' },
                           children: [
                             { type: 'span', props: { style: { fontWeight: 'bold', color: colorScheme.secondary, width: '220px', fontSize: '48px' }, children: 'Layout' } },
                             { type: 'span', props: { children: layout } }
@@ -250,11 +261,11 @@ export const POST: APIRoute = async ({ request }) => {
                   type: 'div',
                   props: {
                     style: {
-                      fontSize: '32px', // Smaller, but readable
-                      color: '#4b5563', // Slightly lighter gray
+                      fontSize: `${descriptionFontSize}px`,
+                      color: '#4b5563',
                       textAlign: 'left',
                       width: '100%',
-                      lineHeight: '1.5', // Better line spacing
+                      lineHeight: '1.5',
                     },
                     children: description,
                   }
