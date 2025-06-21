@@ -1,5 +1,26 @@
 ---
 // Card Generator Component
+let generatedImageURL: string | null = null;
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  try {
+    const response = await fetch(`${Astro.url.origin}/api/og`, {
+      method: "POST",
+      body: formData,
+    });
+    if (response.ok) {
+      const imageBlob = await response.blob();
+      const buffer = await imageBlob.arrayBuffer();
+      generatedImageURL = `data:${imageBlob.type};base64,${Buffer.from(
+        buffer
+      ).toString("base64")}`;
+    } else {
+      console.error("Failed to generate card:", await response.text());
+    }
+  } catch (error) {
+    console.error("Error generating card:", error);
+  }
+}
 ---
 
 <div class="card-generator">
@@ -13,26 +34,46 @@
       <div class="form-section">
         <div class="form-container">
           <h2>Card Information</h2>
-          
-          <form id="cardForm" class="card-form">
+
+          <form method="POST" class="card-form" enctype="multipart/form-data">
             <div class="form-group">
               <label for="keyboardName">Keyboard Name</label>
-              <input type="text" id="keyboardName" name="keyboardName" placeholder="HHKB Professional" />
+              <input
+                type="text"
+                id="keyboardName"
+                name="keyboardName"
+                placeholder="HHKB Professional"
+              />
             </div>
 
             <div class="form-group">
               <label for="owner">Owner</label>
-              <input type="text" id="owner" name="owner" placeholder="John Doe" />
+              <input
+                type="text"
+                id="owner"
+                name="owner"
+                placeholder="John Doe"
+              />
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label for="switches">Switches</label>
-                <input type="text" id="switches" name="switches" placeholder="Cherry MX Blue" />
+                <input
+                  type="text"
+                  id="switches"
+                  name="switches"
+                  placeholder="Cherry MX Blue"
+                />
               </div>
               <div class="form-group">
                 <label for="keycaps">Keycaps</label>
-                <input type="text" id="keycaps" name="keycaps" placeholder="PBT Double-shot" />
+                <input
+                  type="text"
+                  id="keycaps"
+                  name="keycaps"
+                  placeholder="PBT Double-shot"
+                />
               </div>
             </div>
 
@@ -62,16 +103,37 @@
 
             <div class="form-group">
               <label for="description">Description</label>
-              <textarea id="description" name="description" rows="3" placeholder="Premium mechanical keyboard with tactical switches and premium keycaps..."></textarea>
+              <textarea
+                id="description"
+                name="description"
+                rows="3"
+                placeholder="Premium mechanical keyboard with tactical switches and premium keycaps..."
+              ></textarea>
             </div>
 
             <div class="form-group">
               <label for="keyboardPhoto">Keyboard Photo</label>
               <div class="file-upload">
-                <input type="file" id="keyboardPhoto" name="keyboardPhoto" accept="image/*" />
+                <input
+                  type="file"
+                  id="keyboardPhoto"
+                  name="keyboardPhoto"
+                  accept="image/*"
+                />
                 <div class="file-upload-text">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  <svg
+                    width="24"
+                    height="24"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    ></path>
                   </svg>
                   <span>Upload keyboard photo</span>
                 </div>
@@ -79,8 +141,18 @@
             </div>
 
             <div class="form-actions">
-              <button type="button" id="generateCard" class="btn btn-primary">Generate Card</button>
-              <button type="button" id="downloadPNG" class="btn btn-secondary" disabled>Download PNG</button>
+              <button type="submit" class="btn btn-primary">Generate Card</button>
+              {
+                generatedImageURL && (
+                  <a
+                    href={generatedImageURL}
+                    download="keyboard-card.png"
+                    class="btn btn-secondary"
+                  >
+                    Download PNG
+                  </a>
+                )
+              }
             </div>
           </form>
         </div>
@@ -91,9 +163,19 @@
           <h2>Card Preview</h2>
           <div class="card-preview">
             <div id="cardPreview" class="card-canvas">
-              <div class="placeholder-card">
-                <p>Fill out the form to generate your card</p>
-              </div>
+              {
+                generatedImageURL ? (
+                  <img
+                    src={generatedImageURL}
+                    alt="Generated keyboard card"
+                    style="width: 100%; height: 100%; object-fit: contain;"
+                  />
+                ) : (
+                  <div class="placeholder-card">
+                    <p>Fill out the form to generate your card</p>
+                  </div>
+                )
+              }
             </div>
           </div>
           <div class="preview-info">
@@ -355,68 +437,3 @@
     }
   }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('cardForm');
-    const generateBtn = document.getElementById('generateCard');
-    const downloadPNGBtn = document.getElementById('downloadPNG');
-    const previewContainer = document.getElementById('cardPreview');
-    let generatedImageURL = null;
-
-    generateBtn.addEventListener('click', async () => {
-      const formData = new FormData(form);
-      
-      previewContainer.innerHTML = '<div class="placeholder-card"><p>Generating card...</p></div>';
-      generateBtn.disabled = true;
-      generateBtn.textContent = 'Generating...';
-
-      try {
-        const response = await fetch('/api/og', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to generate card: ${errorText}`);
-        }
-
-        const imageBlob = await response.blob();
-        if (generatedImageURL) {
-          URL.revokeObjectURL(generatedImageURL);
-        }
-        generatedImageURL = URL.createObjectURL(imageBlob);
-
-        const img = document.createElement('img');
-        img.src = generatedImageURL;
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'contain';
-        
-        previewContainer.innerHTML = '';
-        previewContainer.appendChild(img);
-
-        downloadPNGBtn.disabled = false;
-
-      } catch (error) {
-        console.error(error);
-        previewContainer.innerHTML = '<div class="placeholder-card"><p>Error generating card. Please try again.</p></div>';
-      } finally {
-        generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Card';
-      }
-    });
-
-    downloadPNGBtn.addEventListener('click', () => {
-      if (!generatedImageURL) return;
-      const a = document.createElement('a');
-      a.href = generatedImageURL;
-      const keyboardName = new FormData(form).get('keyboardName') || 'keyboard-card';
-      a.download = `${keyboardName}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    });
-  });
-</script>
