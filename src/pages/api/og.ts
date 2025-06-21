@@ -29,9 +29,11 @@ export async function loadGoogleFont({
   };
 
   if (text) {
-    params.text = text;
+    // URL-encode the text to handle special characters like '%'
+    params.text = encodeURIComponent(text);
   } else {
-    params.subset = "latin";
+    // Load the Japanese subset to support a wide range of characters including symbols.
+    params.subset = "japanese";
   }
 
   const url = `https://fonts.googleapis.com/css2?${Object.keys(params)
@@ -80,9 +82,8 @@ export const POST: APIRoute = async ({ request }) => {
       photoDataUrl = `data:${photoFile.type};base64,${base64}`;
     }
 
-    const fontText = [keyboardName, owner, switches, keycaps, layout, description, 'Switches: ', 'Keycaps: ', 'Layout: '].filter(Boolean).join('');
-    const plexSansJPRegular = await loadGoogleFont({ family: 'IBM Plex Sans JP', weight: 400, text: fontText });
-    const plexSansJPBold = await loadGoogleFont({ family: 'IBM Plex Sans JP', weight: 700, text: fontText });
+    const plexSansJPRegular = await loadGoogleFont({ family: 'IBM Plex Sans JP', weight: 400 });
+    const plexSansJPBold = await loadGoogleFont({ family: 'IBM Plex Sans JP', weight: 700 });
 
     const html = {
       type: 'div',
@@ -94,9 +95,10 @@ export const POST: APIRoute = async ({ request }) => {
           flexDirection: 'column',
           fontFamily: '"IBM Plex Sans JP"',
           position: 'relative',
-          color: '#374151',
+          color: '#1f2937', // Darker gray for better contrast
         },
         children: [
+          // Background Gradient
           {
             type: 'div',
             props: {
@@ -111,6 +113,7 @@ export const POST: APIRoute = async ({ request }) => {
               }
             }
           },
+          // Background Photo
           (photoDataUrl && photoDataUrl.trim() !== '') && {
             type: 'img',
             props: {
@@ -122,37 +125,12 @@ export const POST: APIRoute = async ({ request }) => {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                opacity: '0.4',
+                opacity: 1, // Photo is main visual
                 zIndex: -1,
               }
             }
           },
-          {
-            type: 'div',
-            props: {
-              style: {
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '20px',
-                backgroundColor: colorScheme.primary,
-              }
-            }
-          },
-          {
-            type: 'div',
-            props: {
-              style: {
-                position: 'absolute',
-                bottom: '0',
-                left: '0',
-                width: '100%',
-                height: '20px',
-                backgroundColor: colorScheme.primary,
-              }
-            }
-          },
+          // Overlay for text readability
           {
             type: 'div',
             props: {
@@ -162,118 +140,43 @@ export const POST: APIRoute = async ({ request }) => {
                 left: '0',
                 width: '100%',
                 height: '100%',
-                backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                backgroundColor: 'rgba(255, 255, 255, 0.85)', // Increased opacity
                 zIndex: 0,
               }
             }
           },
+          // Main Content
           {
             type: 'div',
             props: {
               style: {
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'column',
+                justifyContent: 'space-between', // Pushes content to top, middle, bottom
                 width: '100%',
                 height: '100%',
+                padding: '80px',
                 zIndex: 1,
               },
               children: [
-                // Left side
+                // Top Section: Keyboard Name & Owner
                 {
                   type: 'div',
                   props: {
                     style: {
-                      width: '50%',
-                      height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      justifyContent: 'center',
-                      padding: '80px',
+                      alignItems: 'flex-start',
                     },
                     children: [
                       {
                         type: 'div',
                         props: {
                           style: {
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
-                            width: '100%',
-                            fontSize: '48px',
-                            marginBottom: '20px',
-                          },
-                          children: [
-                            (switches && switches.trim() !== '') && {
-                              type: 'div',
-                              props: {
-                                style: { display: 'flex', marginBottom: '10px' },
-                                children: [
-                                  { type: 'span', props: { children: 'Switches: ' } },
-                                  { type: 'span', props: { style: { fontWeight: 'bold' }, children: switches } }
-                                ]
-                              }
-                            },
-                            (keycaps && keycaps.trim() !== '') && {
-                              type: 'div',
-                              props: {
-                                style: { display: 'flex', marginBottom: '10px' },
-                                children: [
-                                  { type: 'span', props: { children: 'Keycaps: ' } },
-                                  { type: 'span', props: { style: { fontWeight: 'bold' }, children: keycaps } }
-                                ]
-                              }
-                            },
-                            (layout && layout.trim() !== '') && {
-                              type: 'div',
-                              props: {
-                                style: { display: 'flex', marginBottom: '10px' },
-                                children: [
-                                  { type: 'span', props: { children: 'Layout: ' } },
-                                  { type: 'span', props: { style: { fontWeight: 'bold' }, children: layout } }
-                                ]
-                              }
-                            },
-                          ].filter(Boolean)
-                        }
-                      },
-                      (description && description.trim() !== '') && {
-                        type: 'div',
-                        props: {
-                          style: {
-                            fontSize: '36px',
-                            color: '#6b7280',
-                            textAlign: 'left',
-                            width: '100%',
-                          },
-                          children: description,
-                        }
-                      }
-                    ].filter(Boolean)
-                  }
-                },
-                // Right side
-                {
-                  type: 'div',
-                  props: {
-                    style: {
-                      width: '50%',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      textAlign: 'center',
-                      padding: '80px',
-                    },
-                    children: [
-                      {
-                        type: 'div',
-                        props: {
-                          style: {
-                            fontSize: '80px',
+                            fontSize: '110px', // Much larger font size
                             fontWeight: 'bold',
                             color: colorScheme.primary,
-                            marginBottom: '20px',
+                            lineHeight: '1.1',
                           },
                           children: keyboardName,
                         }
@@ -285,15 +188,78 @@ export const POST: APIRoute = async ({ request }) => {
                             fontSize: '64px',
                             fontWeight: 'bold',
                             color: colorScheme.secondary,
-                            marginBottom: '40px',
+                            marginTop: '10px',
                           },
-                          children: owner,
+                          children: `by ${owner}`,
                         }
                       },
                     ].filter(Boolean)
                   }
+                },
+
+                // Middle Section: Specs
+                {
+                  type: 'div',
+                  props: {
+                    style: {
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      width: '100%',
+                      fontSize: '52px', // Larger base font size for specs
+                      marginTop: '40px', // Add space from top
+                      marginBottom: '40px', // Add space from bottom
+                    },
+                    children: [
+                      (switches && switches.trim() !== '') && {
+                        type: 'div',
+                        props: {
+                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' }, // Increased margin
+                          children: [
+                            { type: 'span', props: { style: { fontWeight: 'bold', color: colorScheme.secondary, width: '220px', fontSize: '48px' }, children: 'Switches' } },
+                            { type: 'span', props: { children: switches } }
+                          ]
+                        }
+                      },
+                      (keycaps && keycaps.trim() !== '') && {
+                        type: 'div',
+                        props: {
+                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' }, // Increased margin
+                          children: [
+                            { type: 'span', props: { style: { fontWeight: 'bold', color: colorScheme.secondary, width: '220px', fontSize: '48px' }, children: 'Keycaps' } },
+                            { type: 'span', props: { children: keycaps } }
+                          ]
+                        }
+                      },
+                      (layout && layout.trim() !== '') && {
+                        type: 'div',
+                        props: {
+                          style: { display: 'flex', alignItems: 'baseline', marginBottom: '20px' }, // Increased margin
+                          children: [
+                            { type: 'span', props: { style: { fontWeight: 'bold', color: colorScheme.secondary, width: '220px', fontSize: '48px' }, children: 'Layout' } },
+                            { type: 'span', props: { children: layout } }
+                          ]
+                        }
+                      },
+                    ].filter(Boolean)
+                  }
+                },
+
+                // Bottom Section: Description
+                (description && description.trim() !== '') && {
+                  type: 'div',
+                  props: {
+                    style: {
+                      fontSize: '32px', // Smaller, but readable
+                      color: '#4b5563', // Slightly lighter gray
+                      textAlign: 'left',
+                      width: '100%',
+                      lineHeight: '1.5', // Better line spacing
+                    },
+                    children: description,
+                  }
                 }
-              ]
+              ].filter(Boolean)
             }
           }
         ].filter(Boolean)
