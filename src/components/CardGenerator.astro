@@ -1,5 +1,14 @@
 ---
 // Card Generator Component
+const query = Astro.url.searchParams;
+const keyboardName = query.get("keyboardName") ?? "";
+const owner = query.get("owner") ?? "";
+const switches = query.get("switches") ?? "";
+const keycaps = query.get("keycaps") ?? "";
+const layout = query.get("layout") ?? "60%";
+const colorScheme = query.get("colorScheme") ?? "blue";
+const description = query.get("description") ?? "";
+
 let generatedImageURL: string | null = null;
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
@@ -43,6 +52,7 @@ if (Astro.request.method === "POST") {
                 id="keyboardName"
                 name="keyboardName"
                 placeholder="HHKB Professional"
+                value={keyboardName}
               />
             </div>
 
@@ -53,6 +63,7 @@ if (Astro.request.method === "POST") {
                 id="owner"
                 name="owner"
                 placeholder="John Doe"
+                value={owner}
               />
             </div>
 
@@ -64,6 +75,7 @@ if (Astro.request.method === "POST") {
                   id="switches"
                   name="switches"
                   placeholder="Cherry MX Blue"
+                  value={switches}
                 />
               </div>
               <div class="form-group">
@@ -73,6 +85,7 @@ if (Astro.request.method === "POST") {
                   id="keycaps"
                   name="keycaps"
                   placeholder="PBT Double-shot"
+                  value={keycaps}
                 />
               </div>
             </div>
@@ -81,22 +94,22 @@ if (Astro.request.method === "POST") {
               <div class="form-group">
                 <label for="layout">Layout</label>
                 <select id="layout" name="layout">
-                  <option value="60%">60%</option>
-                  <option value="65%">65%</option>
-                  <option value="75%">75%</option>
-                  <option value="TKL">TKL (Tenkeyless)</option>
-                  <option value="Full Size">Full Size</option>
-                  <option value="Custom">Custom</option>
+                  <option value="60%" selected={layout === "60%"}>60%</option>
+                  <option value="65%" selected={layout === "65%"}>65%</option>
+                  <option value="75%" selected={layout === "75%"}>75%</option>
+                  <option value="TKL" selected={layout === "TKL"}>TKL (Tenkeyless)</option>
+                  <option value="Full Size" selected={layout === "Full Size"}>Full Size</option>
+                  <option value="Custom" selected={layout === "Custom"}>Custom</option>
                 </select>
               </div>
               <div class="form-group">
                 <label for="colorScheme">Color Scheme</label>
                 <select id="colorScheme" name="colorScheme">
-                  <option value="blue">Ocean Blue</option>
-                  <option value="purple">Royal Purple</option>
-                  <option value="orange">Sunset Orange</option>
-                  <option value="green">Forest Green</option>
-                  <option value="red">Crimson Red</option>
+                  <option value="blue" selected={colorScheme === "blue"}>Ocean Blue</option>
+                  <option value="purple" selected={colorScheme === "purple"}>Royal Purple</option>
+                  <option value="orange" selected={colorScheme === "orange"}>Sunset Orange</option>
+                  <option value="green" selected={colorScheme === "green"}>Forest Green</option>
+                  <option value="red" selected={colorScheme === "red"}>Crimson Red</option>
                 </select>
               </div>
             </div>
@@ -108,7 +121,7 @@ if (Astro.request.method === "POST") {
                 name="description"
                 rows="3"
                 placeholder="Premium mechanical keyboard with tactical switches and premium keycaps..."
-              ></textarea>
+              >{description}</textarea>
             </div>
 
             <div class="form-group">
@@ -437,3 +450,28 @@ if (Astro.request.method === "POST") {
     }
   }
 </style>
+
+<script>
+  const form = document.querySelector(".card-form");
+  if (form) {
+    const inputs = form.querySelectorAll(
+      "input, select, textarea"
+    );
+
+    const updateURL = () => {
+      const formData = new FormData(form as HTMLFormElement);
+      const params = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        if (key !== "keyboardPhoto" && value) {
+          params.set(key, value.toString());
+        }
+      }
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState({}, "", newUrl);
+    };
+
+    inputs.forEach((input) => {
+      input.addEventListener("input", updateURL);
+    });
+  }
+</script>
