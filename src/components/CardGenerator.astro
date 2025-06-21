@@ -80,7 +80,6 @@
 
             <div class="form-actions">
               <button type="button" id="generateCard" class="btn btn-primary">Generate Card</button>
-              <button type="button" id="downloadSVG" class="btn btn-secondary" disabled>Download SVG</button>
               <button type="button" id="downloadPNG" class="btn btn-secondary" disabled>Download PNG</button>
             </div>
           </form>
@@ -358,5 +357,66 @@
 </style>
 
 <script>
-  // Card generation and download functionality will be handled by the separate script file
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('cardForm');
+    const generateBtn = document.getElementById('generateCard');
+    const downloadPNGBtn = document.getElementById('downloadPNG');
+    const previewContainer = document.getElementById('cardPreview');
+    let generatedImageURL = null;
+
+    generateBtn.addEventListener('click', async () => {
+      const formData = new FormData(form);
+      
+      previewContainer.innerHTML = '<div class="placeholder-card"><p>Generating card...</p></div>';
+      generateBtn.disabled = true;
+      generateBtn.textContent = 'Generating...';
+
+      try {
+        const response = await fetch('/api/og', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to generate card: ${errorText}`);
+        }
+
+        const imageBlob = await response.blob();
+        if (generatedImageURL) {
+          URL.revokeObjectURL(generatedImageURL);
+        }
+        generatedImageURL = URL.createObjectURL(imageBlob);
+
+        const img = document.createElement('img');
+        img.src = generatedImageURL;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+        
+        previewContainer.innerHTML = '';
+        previewContainer.appendChild(img);
+
+        downloadPNGBtn.disabled = false;
+
+      } catch (error) {
+        console.error(error);
+        previewContainer.innerHTML = '<div class="placeholder-card"><p>Error generating card. Please try again.</p></div>';
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate Card';
+      }
+    });
+
+    downloadPNGBtn.addEventListener('click', () => {
+      if (!generatedImageURL) return;
+      const a = document.createElement('a');
+      a.href = generatedImageURL;
+      const keyboardName = new FormData(form).get('keyboardName') || 'keyboard-card';
+      a.download = `${keyboardName}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+  });
 </script>
