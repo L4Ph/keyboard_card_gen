@@ -10,9 +10,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/netlify": "^6.4.0",
+    "@astrojs/cloudflare": "^12.6.0",
     "@resvg/resvg-js": "^2.6.2",
     "astro": "^5.2.5",
     "satori": "^0.15.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.20.5"
   }
 }
