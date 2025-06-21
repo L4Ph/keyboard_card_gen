@@ -1,6 +1,12 @@
 import type { APIRoute } from 'astro';
 import satori from 'satori';
-import { Resvg } from '@resvg/resvg-js';
+import { svg2png, initialize } from 'svg2png-wasm';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+await initialize(
+  readFileSync('./node_modules/svg2png-wasm/svg2png_wasm_bg.wasm'),
+);
+
 const colorSchemes = {
   blue: { primary: '#3b82f6', secondary: '#1e40af', accent: '#dbeafe' },
   purple: { primary: '#8b5cf6', secondary: '#7c3aed', accent: '#ede9fe' },
@@ -313,15 +319,17 @@ export const POST: APIRoute = async ({ request }) => {
       ],
     });
 
-    const resvg = new Resvg(svg, {
-      fitTo: {
-        mode: 'width',
-        value: 1748,
-      },
-    });
+    // const resvg = new Resvg(svg, {
+    //   fitTo: {
+    //     mode: 'width',
+    //     value: 1748,
+    //   },
+    // });
 
-    const pngData = resvg.render();
-    const pngBuffer = pngData.asPng();
+    // const pngData = resvg.render();
+    // const pngBuffer = pngData.asPng();
+
+    const pngBuffer = await svg2png(svg)
 
     return new Response(pngBuffer, {
       headers: {
