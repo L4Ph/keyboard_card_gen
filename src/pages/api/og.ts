@@ -1,9 +1,6 @@
 import type { APIRoute } from 'astro';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-
 const colorSchemes = {
   blue: { primary: '#3b82f6', secondary: '#1e40af', accent: '#dbeafe' },
   purple: { primary: '#8b5cf6', secondary: '#7c3aed', accent: '#ede9fe' },
@@ -12,11 +9,48 @@ const colorSchemes = {
   red: { primary: '#ef4444', secondary: '#dc2626', accent: '#fecaca' }
 };
 
-async function getFontData(fontPath: string): Promise<ArrayBuffer> {
-  const absolutePath = path.join(process.cwd(), fontPath);
-  const buffer = await fs.readFile(absolutePath);
-  // Convert Buffer to ArrayBuffer
-  return Uint8Array.from(buffer).buffer;
+export async function loadGoogleFont({
+  family,
+  weight,
+  text,
+}: {
+  family: string;
+  weight?: number;
+  text?: string;
+}) {
+  const params: Record<string, string> = {
+    family: `${encodeURIComponent(family)}${weight ? `:wght@${weight}` : ""}`,
+  };
+
+  if (text) {
+    params.text = text;
+  } else {
+    params.subset = "latin";
+  }
+
+  const url = `https://fonts.googleapis.com/css2?${Object.keys(params)
+    .map((key) => `${key}=${params[key]}`)
+    .join("&")}`;
+
+  const res = await fetch(url, {
+    headers: {
+      // construct user agent to get TTF font
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; de-at) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1",
+    },
+  });
+
+  const body = await res.text();
+  // Get the font URL from the CSS text
+  const fontUrl = body.match(
+    /src: url\((.+)\) format\('(opentype|truetype)'\)/
+  )?.[1];
+
+  if (!fontUrl) {
+    throw new Error("Could not find font URL");
+  }
+
+  return fetch(fontUrl).then((res) => res.arrayBuffer());
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -40,8 +74,9 @@ export const POST: APIRoute = async ({ request }) => {
       photoDataUrl = `data:${photoFile.type};base64,${base64}`;
     }
 
-    const plexSansJPRegular = await getFontData('public/fonts/IBMPlexSansJP-Regular.ttf');
-    const plexSansJPBold = await getFontData('public/fonts/IBMPlexSansJP-Bold.ttf');
+    const fontText = [keyboardName, owner, switches, keycaps, layout, description, 'Switches: ', 'Keycaps: ', 'Layout: '].filter(Boolean).join('');
+    const plexSansJPRegular = await loadGoogleFont({ family: 'IBM Plex Sans JP', weight: 400, text: fontText });
+    const plexSansJPBold = await loadGoogleFont({ family: 'IBM Plex Sans JP', weight: 700, text: fontText });
 
     const html = {
       type: 'div',
@@ -51,7 +86,7 @@ export const POST: APIRoute = async ({ request }) => {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          fontFamily: '"Inter"',
+          fontFamily: '"IBM Plex Sans JP"',
           position: 'relative',
           color: '#374151',
         },
@@ -70,7 +105,7 @@ export const POST: APIRoute = async ({ request }) => {
               }
             }
           },
-          photoDataUrl && {
+          (photoDataUrl && photoDataUrl.trim() !== '') && {
             type: 'img',
             props: {
               src: photoDataUrl,
@@ -162,7 +197,7 @@ export const POST: APIRoute = async ({ request }) => {
                             marginBottom: '20px',
                           },
                           children: [
-                            switches && {
+                            (switches && switches.trim() !== '') && {
                               type: 'div',
                               props: {
                                 style: { display: 'flex', marginBottom: '10px' },
@@ -172,7 +207,7 @@ export const POST: APIRoute = async ({ request }) => {
                                 ]
                               }
                             },
-                            keycaps && {
+                            (keycaps && keycaps.trim() !== '') && {
                               type: 'div',
                               props: {
                                 style: { display: 'flex', marginBottom: '10px' },
@@ -182,7 +217,7 @@ export const POST: APIRoute = async ({ request }) => {
                                 ]
                               }
                             },
-                            layout && {
+                            (layout && layout.trim() !== '') && {
                               type: 'div',
                               props: {
                                 style: { display: 'flex', marginBottom: '10px' },
@@ -195,7 +230,7 @@ export const POST: APIRoute = async ({ request }) => {
                           ].filter(Boolean)
                         }
                       },
-                      description && {
+                      (description && description.trim() !== '') && {
                         type: 'div',
                         props: {
                           style: {
@@ -237,7 +272,7 @@ export const POST: APIRoute = async ({ request }) => {
                           children: keyboardName,
                         }
                       },
-                      owner && {
+                      (owner && owner.trim() !== '') && {
                         type: 'div',
                         props: {
                           style: {
